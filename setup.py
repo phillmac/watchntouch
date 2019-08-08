@@ -2,11 +2,10 @@ from setuptools import setup
 import sys
 
 install_requires = [
-    "watchdog == 0.6.0"
+    "watchdog == 0.9.0"
 ]
 
-if sys.version_info < (2, 7, 0):
-    install_requires.append('argparse >=1.1')
+
 
 
 setup(
@@ -37,13 +36,12 @@ Good luck!
     },
     classifiers= [
          "Programming Language :: Python",
-         "Programming Language :: Python :: 2",
-         "Programming Language :: Python :: 2.6",
-         "Programming Language :: Python :: 2.7",
+         "Programming Language :: Python :: 3",
+         "Programming Language :: Python :: 3.6",
+         "Programming Language :: Python :: 3.7",
          "License :: OSI Approved :: BSD License",
          "Environment :: Console",
          "Operating System :: POSIX",
-         "Operating System :: MacOS :: MacOS X",
 
     ]
 
