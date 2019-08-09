@@ -1,7 +1,6 @@
 import time
 import os
 
-from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 from watchdog import events
 from watchdog.tricks import LoggerTrick
@@ -33,40 +32,9 @@ class PollingHandler(events.FileSystemEventHandler):
         subprocess.Popen(["touch", event.src_path])
 
 
-    on_modified = touch_file
     on_created = touch_file
 
-    def on_deleted(self, event):
-        if not self.options.simulate_rm:
-            return
-        if event.is_directory:
-            logger.debug("Simulating native rmdir: %s" % event)
-            os.mkdir(event.src_path)
-            os.rmdir(event.src_path)
-        else:
-            logger.debug("Simulating native rm: %s" % event)
-            os.makedirs(os.path.dirname(event.src_path))
-            open(event.src_path, "a").close()
-            os.remove(event.src_path)
-
-    def on_moved(self, event):
-        if not self.options.simulate_mv:
-            return
-        logger.debug("Simulating move: %s" % event)
-        os.rename(event.dest_path, event.src_path)
-        os.rename(event.src_path, event.dest_path)
-
-
-class NativeHandler(events.FileSystemEventHandler):
-    def __init__(self, other, options):
-        self.other = other
-        self.options = options
-
-    def on_modified(self, event):
-        logger.debug("Adding native event to skiplist: %s" % event)
-        self.other.skip_next.add(event)
-
-
+    
 
 
 
@@ -124,14 +92,8 @@ def run():
     logger.info("Watching %r", args.watchdir)
 
     polling_handler = PollingHandler(args)
-    native_handler = NativeHandler(polling_handler, args)
 
     polling_observer = PollingObserver()
-    native_observer = Observer()
-
-    native_observer.schedule(native_handler, path=args.watchdir, recursive=True)
-    native_observer.start()
-
 
     polling_observer.schedule(polling_handler, path=args.watchdir, recursive=True)
     polling_observer.start()
@@ -141,11 +103,8 @@ def run():
             time.sleep(args.interval)
     except KeyboardInterrupt:
         logger.info("Shutdown")
-        native_observer.stop()
         polling_observer.stop()
 
-
-    native_observer.join()
     polling_observer.join()
 
 
